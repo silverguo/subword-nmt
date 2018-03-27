@@ -8,7 +8,6 @@ Proceedings of the 54th Annual Meeting of the Association for Computational Ling
 """
 
 # python3 only
-# mod by Yuhan
 
 import sys
 import codecs
