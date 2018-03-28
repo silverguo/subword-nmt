@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Author: Rico Sennrich
-
 """Use operations learned with learn_bpe.py to encode a new text.
 The text will not be smaller, but use only a fixed vocabulary, with rare words
 encoded as variable-length sequences of subword units.
@@ -11,7 +7,7 @@ Rico Sennrich, Barry Haddow and Alexandra Birch (2015). Neural Machine Translati
 Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (ACL 2016). Berlin, Germany.
 """
 
-from __future__ import unicode_literals, division
+# python3 only
 
 import sys
 import codecs
@@ -19,9 +15,6 @@ import io
 import argparse
 import re
 
-# hack for python2/3 compatibility
-from io import open
-argparse.open = open
 
 class BPE(object):
 
