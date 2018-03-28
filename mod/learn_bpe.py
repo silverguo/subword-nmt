@@ -87,6 +87,8 @@ def update_pair_statistics(pair, changed, stats, indices):
     indices[pair] = defaultdict(int)
     first, second = pair
     new_pair = first+second
+
+    # index of word, new symbol tuple, old one, pair freq of this word
     for j, word, old_word, freq in changed:
 
         # find all instances of pair, and update frequency/indices around it
@@ -96,6 +98,7 @@ def update_pair_statistics(pair, changed, stats, indices):
             try:
                 i = old_word.index(first, i)
             except ValueError:
+                # break if not exist
                 break
             # if first symbol is followed by second symbol, we've found an occurrence of pair (old_word[i:i+2])
             if i < len(old_word)-1 and old_word[i+1] == second:
@@ -104,6 +107,8 @@ def update_pair_statistics(pair, changed, stats, indices):
                     prev = old_word[i-1:i+1]
                     stats[prev] -= freq
                     indices[prev][j] -= 1
+
+                # if pair is not last two symbol
                 if i < len(old_word)-2:
                     # assuming a symbol sequence "A B C B", if "B C" is merged, reduce the frequency of "C B".
                     # however, skip this if the sequence is A B C B C, because the frequency of "C B" will be reduced by the previous code block
@@ -121,6 +126,7 @@ def update_pair_statistics(pair, changed, stats, indices):
                 # find new pair
                 i = word.index(new_pair, i)
             except ValueError:
+                # break if not exist
                 break
             # assuming a symbol sequence "A BC D", if "B C" is merged, increase the frequency of "A BC"
             if i:
@@ -176,6 +182,7 @@ def replace_pair(pair, vocab, indices):
     pattern = re.compile(r'(?<!\S)' + re.escape(first + ' ' + second) + r'(?!\S)')
     
     iterator = indices[pair].items()
+    # index of word and freq of pair in this word
     for j, freq in iterator:
         if freq < 1:
             continue
@@ -184,23 +191,27 @@ def replace_pair(pair, vocab, indices):
         new_word = pattern.sub(pair_str, new_word)
         new_word = tuple(new_word.split())
 
+        # update merged pair in vocab
         vocab[j] = (new_word, freq)
         changes.append((j, new_word, word, freq))
 
     return changes
 
+
 def prune_stats(stats, big_stats, threshold):
     """Prune statistics dict for efficiency of max()
 
     The frequency of a symbol pair never increases, so pruning is generally safe
-    (until we the most frequent pair is less frequent than a pair we previously pruned)
+    (until the most frequent pair is less frequent than a pair we previously pruned)
     big_stats keeps full statistics for when we need to access pruned items
     """
-    for item,freq in list(stats.items()):
+    for item, freq in list(stats.items()):
         if freq < threshold:
             del stats[item]
+            # item already pruned when pair merge
             if freq < 0:
                 big_stats[item] += freq
+            # update freq in complete stats
             else:
                 big_stats[item] = freq
 
@@ -249,6 +260,8 @@ def main(infile, outfile, num_symbols, min_frequency=2, verbose=False, is_dict=F
         changes = replace_pair(most_frequent, sorted_vocab, indices)
         update_pair_statistics(most_frequent, changes, stats, indices)
         stats[most_frequent] = 0
+
+        # prune each 100 iters
         if not i % 100:
             prune_stats(stats, big_stats, threshold)
 
