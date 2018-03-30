@@ -12,7 +12,6 @@ Proceedings of the 54th Annual Meeting of the Association for Computational Ling
 
 import sys
 import os
-import codecs
 import argparse
 import tempfile
 from collections import Counter

@@ -10,8 +10,6 @@ Proceedings of the 54th Annual Meeting of the Association for Computational Ling
 # python3 only
 
 import sys
-import codecs
-import io
 import argparse
 import re
 
